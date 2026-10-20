@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Demos HU-01, HU-02, HU-03 y HU-04: disponibilidad y agendamiento médico de Luma Salud">
+  <title>Luma Salud | Disponibilidad, reservas y confirmación</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/datos.js" defer></script>
+  <script src="js/hu02-agendamiento.js" defer></script>
+  <script src="js/hu01-disponibilidad.js" defer></script>
+  <script src="js/hu03-confirmacion.js" defer></script>
+  <script src="js/hu04-modificacion.js" defer></script>
+</head>
+<body>
+  <header class="cabecera"><div class="contenedor cabecera-interior"><a class="marca" href="index.html" aria-label="Luma Salud, inicio"><span class="marca-icono">✚</span><span>Luma <strong>Salud</strong><small>Tu salud, siempre acompañada</small></span></a><span class="etiqueta">DEMO · HU-01 + HU-02 + HU-03 + HU-04</span></div></header>
+  <main class="contenedor">
+    <section class="presentacion"><span class="sobre-titulo">AGENDA MÉDICA DIGITAL</span><h1>Encuentra tu próxima hora médica</h1><p>Consulta la disponibilidad y reserva una hora médica de demostración.</p></section>
+    <div class="distribucion">
+      <section class="panel" aria-labelledby="titulo-busqueda"><div class="panel-encabezado"><span class="paso">1</span><div><h2 id="titulo-busqueda">Buscar disponibilidad</h2><p>Completa los filtros para consultar horarios.</p></div></div>
+        <form id="formulario" novalidate>
+          <label for="especialidad">Especialidad médica</label><select id="especialidad" required><option value="">Selecciona una especialidad</option></select>
+          <label for="profesional">Profesional</label><select id="profesional" required disabled><option value="">Primero selecciona una especialidad</option></select>
+          <label for="sucursal">Sucursal</label><select id="sucursal" required><option value="">Selecciona una sucursal</option></select>
+          <label for="fecha">Fecha de atención</label><input id="fecha" type="date" required>
+          <button class="boton-principal" type="submit">Consultar horarios <span aria-hidden="true">→</span></button>
+          <p class="error" id="error" role="alert" hidden></p>
+        </form>
+      </section>
+      <section class="panel resultados" aria-labelledby="titulo-resultados"><div class="panel-encabezado"><span class="paso">2</span><div><h2 id="titulo-resultados">Horarios disponibles</h2><p id="subtitulo-resultados">Selecciona tus preferencias para comenzar.</p></div></div>
+        <div id="resultado" aria-live="polite"><div class="vacio"><div class="vacio-icono">▦</div><h3>Tu agenda comienza aquí</h3><p>Al consultar, verás las horas disponibles y ocupadas del profesional elegido.</p></div></div>
+      </section>
+    </div>
+    <section class="panel panel-reserva" id="panel-reserva" hidden aria-labelledby="titulo-reserva">
+      <div class="panel-encabezado"><span class="paso">3</span><div><h2 id="titulo-reserva">Reservar hora médica</h2><p>Completa los datos ficticios del paciente.</p></div></div>
+      <p class="resumen" id="detalle-reserva"></p>
+      <form id="form-reserva" novalidate>
+        <label for="paciente-nombre">Nombre completo</label><input id="paciente-nombre" type="text" autocomplete="off" required maxlength="90" placeholder="Ej.: Ana Pérez">
+        <label for="paciente-rut">RUT</label><input id="paciente-rut" type="text" autocomplete="off" required maxlength="14" placeholder="Ej.: 12.345.678-5">
+        <label for="paciente-correo">Correo electrónico</label><input id="paciente-correo" type="email" autocomplete="off" required maxlength="120" placeholder="paciente@ejemplo.cl">
+        <label for="paciente-telefono">Teléfono</label><input id="paciente-telefono" type="tel" autocomplete="off" required maxlength="20" placeholder="+56 9 1234 5678">
+        <p class="error" id="reserva-error" role="alert" hidden></p>
+        <div class="acciones"><button class="boton-principal" type="submit">Confirmar reserva →</button><button class="boton-secundario" type="button" id="cerrar-reserva">Volver</button></div>
+      </form>
+    </section>
+    <section class="panel panel-reserva comprobante" id="comprobante" hidden aria-live="polite"><h2>✓ Reserva registrada</h2><p>El código de la reserva es <strong id="comprobante-id"></strong>.</p><p id="comprobante-detalle"></p><p>Estado: pendiente de confirmación. Puedes confirmar tu asistencia en HU-03.</p></section>
+    <section class="panel panel-reserva" id="hu03" aria-labelledby="titulo-hu03">
+      <div class="panel-encabezado"><span class="paso">4</span><div><h2 id="titulo-hu03">HU-03 · Confirmación de citas</h2><p>Consulta tus citas con tu RUT y confirma la asistencia a la que elijas.</p></div></div>
+      <form id="form-buscar-reserva" class="form-busqueda" novalidate>
+        <label for="buscar-rut">RUT del paciente</label><input id="buscar-rut" required placeholder="Ej.: 12.345.678-5" autocomplete="off">
+        <button class="boton-principal" type="submit">Consultar mis citas →</button>
+        <p id="buscar-error" class="error" role="alert" hidden></p>
+      </form>
+      <div id="lista-citas" hidden aria-live="polite"></div>
+      <div id="detalle-confirmacion" hidden aria-live="polite">
+        <h3>Detalle de la cita</h3>
+        <dl class="detalle-cita">
+          <dt>Código</dt><dd id="cita-codigo"></dd>
+          <dt>Paciente</dt><dd id="cita-paciente"></dd>
+          <dt>Profesional</dt><dd id="cita-medico"></dd>
+          <dt>Especialidad</dt><dd id="cita-especialidad"></dd>
+          <dt>Sucursal</dt><dd id="cita-sucursal"></dd>
+          <dt>Fecha y hora</dt><dd id="cita-fecha"></dd>
+          <dt>Estado</dt><dd><span class="estado-cita" id="cita-estado"></span></dd>
+        </dl>
+        <button class="boton-principal" id="boton-confirmar" type="button">Confirmar mi asistencia ✓</button>
+        <p id="confirmar-mensaje" class="mensaje-exito" role="status" hidden></p>
+      </div>
+    </section>
+    <section class="panel panel-reserva" id="hu04" aria-labelledby="titulo-hu04">
+      <div class="panel-encabezado"><span class="paso">5</span><div><h2 id="titulo-hu04">HU-04 · Modificar o cancelar citas</h2><p>Consulta tus reservas por RUT, cambia el horario o cancela una cita.</p></div></div>
+      <form id="hu04-busqueda" class="form-busqueda" novalidate>
+        <label for="hu04-rut">RUT del paciente</label>
+        <input id="hu04-rut" placeholder="Ej.: 12.345.678-5" autocomplete="off" required>
+        <button class="boton-principal" type="submit">Buscar mis reservas →</button>
+      </form>
+      <p id="hu04-error" class="error" role="alert" hidden></p>
+      <div id="hu04-lista" class="lista-hu04" aria-live="polite"></div>
+      <div id="hu04-editor" hidden>
+        <h3 id="hu04-titulo-editor">Modificar reserva</h3>
+        <p id="hu04-detalle" class="resumen"></p>
+        <form id="hu04-form" class="form-busqueda" novalidate>
+          <label for="hu04-fecha">Nueva fecha</label>
+          <input id="hu04-fecha" type="date" required>
+          <label for="hu04-hora">Nuevo horario disponible</label>
+          <select id="hu04-hora" required><option value="">Selecciona una fecha</option></select>
+          <p id="hu04-disponibilidad" class="contador" aria-live="polite"></p>
+          <div class="acciones">
+            <button type="submit" class="boton-principal">Guardar modificación</button>
+            <button type="button" class="boton-secundario" id="hu04-cerrar">Volver</button>
+          </div>
+        </form>
+      </div>
+      <p id="hu04-exito" class="mensaje-exito" role="status" hidden></p>
+  </main>
+  <footer>© 2026 Luma Salud · Proyecto ClinicaSalud</footer>
+</body>
+</html>
